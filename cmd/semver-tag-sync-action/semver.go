@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// semverRegex matches semantic versioning tags like v1.2.3, v1.2.3-beta, v1.2.3+build
+// semverRegex matches semantic versioning tags like v1.2.3, v1.2.3-beta, v1.2.3+build.
 var semverRegex = regexp.MustCompile(`^v(\d+)\.(\d+)\.(\d+)([-+].*)?$`)
 
 // SemVer represents a parsed semantic version.
