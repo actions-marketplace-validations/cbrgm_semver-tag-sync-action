@@ -13,7 +13,7 @@ jobs:
   label-issues:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@997185467fa4f803885201cee163a9f38240193d # v10.1.1
+      - uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
         name: Setting issue as idle
         with:
           repo-token: '${{ secrets.GITHUB_TOKEN }}'
@@ -24,7 +24,7 @@ jobs:
           operations-per-run: 100
           exempt-issue-labels: backlog
 
-      - uses: actions/stale@997185467fa4f803885201cee163a9f38240193d # v10.1.1
+      - uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
         name: Setting PR as idle
         with:
           repo-token: '${{ secrets.GITHUB_TOKEN }}'
@@ -35,7 +35,7 @@ jobs:
           operations-per-run: 100
 
       - name: Cleanup Stale Branches
-        uses: cbrgm/cleanup-stale-branches-action@main
+        uses: cbrgm/cleanup-stale-branches-action@0e8177cdd9631f21c783dbd20f7b9cd6b3422206 # main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}

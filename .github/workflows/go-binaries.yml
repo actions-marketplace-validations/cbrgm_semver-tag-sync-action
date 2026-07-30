@@ -22,11 +22,11 @@ jobs:
     steps:
       - name: Checkout source
         id: source
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup golang
         id: golang
-        uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: .go-version
 
@@ -41,7 +41,7 @@ jobs:
       - name: Sign release
         id: gpgsign
         if: startsWith(github.ref, 'refs/tags/')
-        uses: cbrgm/pgp-sign-artifact-action@v1
+        uses: cbrgm/pgp-sign-artifact-action@dd12209d61c263660656f49278286f378ca20580 # v1.0.3
         with:
           private_key: ${{ secrets.GNUPG_KEY }}
           passphrase: ${{ secrets.GNUPG_PASSWORD }}
@@ -50,7 +50,7 @@ jobs:
           excludes: dist/*.sha256
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b # v2.5.0
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         if: startsWith(github.ref, 'refs/tags/')
         with:
           generate_release_notes: true
@@ -58,7 +58,7 @@ jobs:
           token: ${{ secrets.BOT_PAT_TOKEN }}
 
       - name: Update version tags
-        uses: cbrgm/semver-tag-sync-action@v1
+        uses: cbrgm/semver-tag-sync-action@5c3ffb02969fa0e723f9b2b407955b950f37b883 # v1.1.1
         if: startsWith(github.ref, 'refs/tags/v')
 
 ...
