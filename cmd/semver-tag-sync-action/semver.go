@@ -12,9 +12,9 @@ var semverRegex = regexp.MustCompile(`^v(\d+)\.(\d+)\.(\d+)([-+].*)?$`)
 
 // SemVer represents a parsed semantic version.
 type SemVer struct {
-	Major        string
-	Minor        string
-	Patch        string
+	Major        int
+	Minor        int
+	Patch        int
 	Suffix       string // Prerelease and/or build metadata suffix (e.g., "-beta+build")
 	Full         string
 	IsPrerelease bool // True only if suffix starts with "-" (not for build metadata only)
@@ -26,52 +26,61 @@ func ParseSemVer(tag string) (*SemVer, error) {
 	if matches == nil {
 		return nil, fmt.Errorf("tag %q does not match semantic versioning format (expected vX.Y.Z)", tag)
 	}
-	suffix := ""
-	if len(matches) > 4 {
-		suffix = matches[4]
+	major, minor, patch, err := atoi3(matches[1], matches[2], matches[3])
+	if err != nil {
+		return nil, fmt.Errorf("tag %q has out of range version numbers: %w", tag, err)
 	}
-	// Per semver spec: prerelease versions have a hyphen suffix (e.g., -beta, -rc.1)
-	// Build metadata uses + suffix (e.g., +build.123) and is NOT a prerelease
-	isPrerelease := strings.HasPrefix(suffix, "-")
+	suffix := matches[4]
 	return &SemVer{
-		Major:        matches[1],
-		Minor:        matches[2],
-		Patch:        matches[3],
-		Suffix:       suffix,
-		Full:         tag,
-		IsPrerelease: isPrerelease,
+		Major:  major,
+		Minor:  minor,
+		Patch:  patch,
+		Suffix: suffix,
+		Full:   tag,
+		// Per semver spec: prerelease versions have a hyphen suffix (e.g., -beta, -rc.1).
+		// Build metadata uses a + suffix (e.g., +build.123) and is NOT a prerelease.
+		IsPrerelease: strings.HasPrefix(suffix, "-"),
 	}, nil
+}
+
+// atoi3 converts the three version number components, failing on the first error.
+func atoi3(a, b, c string) (int, int, int, error) {
+	x, err := strconv.Atoi(a)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	y, err := strconv.Atoi(b)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	z, err := strconv.Atoi(c)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	return x, y, z, nil
 }
 
 // MajorTag returns the major version tag (e.g., "v1").
 func (s *SemVer) MajorTag() string {
-	return fmt.Sprintf("v%s", s.Major)
+	return fmt.Sprintf("v%d", s.Major)
 }
 
 // MinorTag returns the minor version tag (e.g., "v1.2").
 func (s *SemVer) MinorTag() string {
-	return fmt.Sprintf("v%s.%s", s.Major, s.Minor)
+	return fmt.Sprintf("v%d.%d", s.Major, s.Minor)
 }
 
 // SemVerGreaterThan returns true if a represents a higher version than b.
 func SemVerGreaterThan(a, b *SemVer) bool {
-	aMaj, _ := strconv.Atoi(a.Major)
-	bMaj, _ := strconv.Atoi(b.Major)
-	if aMaj != bMaj {
-		return aMaj > bMaj
+	if a.Major != b.Major {
+		return a.Major > b.Major
 	}
-	aMin, _ := strconv.Atoi(a.Minor)
-	bMin, _ := strconv.Atoi(b.Minor)
-	if aMin != bMin {
-		return aMin > bMin
+	if a.Minor != b.Minor {
+		return a.Minor > b.Minor
 	}
-	aPat, _ := strconv.Atoi(a.Patch)
-	bPat, _ := strconv.Atoi(b.Patch)
-	if aPat != bPat {
-		return aPat > bPat
+	if a.Patch != b.Patch {
+		return a.Patch > b.Patch
 	}
-	if a.IsPrerelease != b.IsPrerelease {
-		return !a.IsPrerelease
-	}
-	return false
+	// Same version numbers: a release outranks a prerelease.
+	return b.IsPrerelease && !a.IsPrerelease
 }

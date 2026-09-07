@@ -72,9 +72,9 @@ func (a *Action) Run(ctx context.Context) error {
 
 	a.log.Debug("Parsed semantic version",
 		slog.String("tag", semver.Full),
-		slog.String("major", semver.Major),
-		slog.String("minor", semver.Minor),
-		slog.String("patch", semver.Patch),
+		slog.Int("major", semver.Major),
+		slog.Int("minor", semver.Minor),
+		slog.Int("patch", semver.Patch),
 		slog.Bool("is_prerelease", semver.IsPrerelease),
 		slog.String("suffix", semver.Suffix),
 	)
@@ -90,9 +90,9 @@ func (a *Action) Run(ctx context.Context) error {
 
 	a.log.Info("Processing tag",
 		slog.String("tag", semver.Full),
-		slog.String("major", semver.Major),
-		slog.String("minor", semver.Minor),
-		slog.String("patch", semver.Patch),
+		slog.Int("major", semver.Major),
+		slog.Int("minor", semver.Minor),
+		slog.Int("patch", semver.Patch),
 	)
 
 	// Parse owner/repo
