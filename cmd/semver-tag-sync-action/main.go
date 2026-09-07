@@ -83,7 +83,6 @@ func main() {
 		SyncAllTags:         syncAllTags,
 		DryRun:              dryRun,
 		GitHubEnterpriseURL: githubEnterpriseURL,
-		LogLevel:            logLevel,
 	}
 
 	// Validate configuration

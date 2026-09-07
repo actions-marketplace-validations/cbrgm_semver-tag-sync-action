@@ -17,7 +17,6 @@ type Config struct {
 	SyncAllTags         bool
 	DryRun              bool
 	GitHubEnterpriseURL string
-	LogLevel            string
 }
 
 // Validate checks the configuration for required values.
