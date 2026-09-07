@@ -8,57 +8,57 @@ func TestParseSemVer(t *testing.T) {
 	tests := []struct {
 		name      string
 		tag       string
-		wantMajor string
-		wantMinor string
-		wantPatch string
+		wantMajor int
+		wantMinor int
+		wantPatch int
 		wantErr   bool
 	}{
 		{
 			name:      "valid semver v1.2.3",
 			tag:       "v1.2.3",
-			wantMajor: "1",
-			wantMinor: "2",
-			wantPatch: "3",
+			wantMajor: 1,
+			wantMinor: 2,
+			wantPatch: 3,
 			wantErr:   false,
 		},
 		{
 			name:      "valid semver v0.0.1",
 			tag:       "v0.0.1",
-			wantMajor: "0",
-			wantMinor: "0",
-			wantPatch: "1",
+			wantMajor: 0,
+			wantMinor: 0,
+			wantPatch: 1,
 			wantErr:   false,
 		},
 		{
 			name:      "valid semver v10.20.30",
 			tag:       "v10.20.30",
-			wantMajor: "10",
-			wantMinor: "20",
-			wantPatch: "30",
+			wantMajor: 10,
+			wantMinor: 20,
+			wantPatch: 30,
 			wantErr:   false,
 		},
 		{
 			name:      "valid semver with prerelease",
 			tag:       "v1.2.3-beta",
-			wantMajor: "1",
-			wantMinor: "2",
-			wantPatch: "3",
+			wantMajor: 1,
+			wantMinor: 2,
+			wantPatch: 3,
 			wantErr:   false,
 		},
 		{
 			name:      "valid semver with build metadata",
 			tag:       "v1.2.3+build.123",
-			wantMajor: "1",
-			wantMinor: "2",
-			wantPatch: "3",
+			wantMajor: 1,
+			wantMinor: 2,
+			wantPatch: 3,
 			wantErr:   false,
 		},
 		{
 			name:      "valid semver with prerelease and build",
 			tag:       "v1.2.3-alpha.1+build",
-			wantMajor: "1",
-			wantMinor: "2",
-			wantPatch: "3",
+			wantMajor: 1,
+			wantMinor: 2,
+			wantPatch: 3,
 			wantErr:   false,
 		},
 		{
@@ -87,11 +87,16 @@ func TestParseSemVer(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name:      "leading zeros are accepted",
+			name:    "invalid - version number out of range",
+			tag:     "v99999999999999999999.0.0",
+			wantErr: true,
+		},
+		{
+			name:      "leading zeros are accepted and normalized",
 			tag:       "v01.02.03",
-			wantMajor: "01",
-			wantMinor: "02",
-			wantPatch: "03",
+			wantMajor: 1,
+			wantMinor: 2,
+			wantPatch: 3,
 			wantErr:   false,
 		},
 	}
@@ -121,9 +126,9 @@ func TestParseSemVer(t *testing.T) {
 
 func TestSemVerTags(t *testing.T) {
 	semver := &SemVer{
-		Major: "1",
-		Minor: "2",
-		Patch: "3",
+		Major: 1,
+		Minor: 2,
+		Patch: 3,
 		Full:  "v1.2.3",
 	}
 
