@@ -48,10 +48,6 @@ func (a *Action) Run(ctx context.Context) error {
 	// Extract tag from ref
 	tag, err := extractTagFromRef(a.config.GitRef)
 	if err != nil {
-		a.log.Error("Failed to extract tag from ref",
-			slog.String("ref", a.config.GitRef),
-			slog.String("error", err.Error()),
-		)
 		return err
 	}
 
@@ -63,10 +59,6 @@ func (a *Action) Run(ctx context.Context) error {
 	// Parse semantic version
 	semver, err := ParseSemVer(tag)
 	if err != nil {
-		a.log.Error("Failed to parse semantic version",
-			slog.String("tag", tag),
-			slog.String("error", err.Error()),
-		)
 		return err
 	}
 
@@ -98,10 +90,6 @@ func (a *Action) Run(ctx context.Context) error {
 	// Parse owner/repo
 	owner, repo, err := parseRepository(a.config.GitHubRepo)
 	if err != nil {
-		a.log.Error("Failed to parse repository",
-			slog.String("repo", a.config.GitHubRepo),
-			slog.String("error", err.Error()),
-		)
 		return err
 	}
 
@@ -119,11 +107,7 @@ func (a *Action) Run(ctx context.Context) error {
 			slog.String("major_tag", majorTag),
 			slog.String("commit_sha", a.config.CommitSHA),
 		)
-		if err := a.syncTag(ctx, owner, repo, majorTag); err != nil {
-			a.log.Error("Failed to sync major tag",
-				slog.String("tag", majorTag),
-				slog.String("error", err.Error()),
-			)
+		if err := a.syncTagToSHA(ctx, owner, repo, majorTag, a.config.CommitSHA); err != nil {
 			syncErrors = append(syncErrors, fmt.Errorf("failed to sync major tag %s: %w", majorTag, err))
 		}
 	}
@@ -135,11 +119,7 @@ func (a *Action) Run(ctx context.Context) error {
 			slog.String("minor_tag", minorTag),
 			slog.String("commit_sha", a.config.CommitSHA),
 		)
-		if err := a.syncTag(ctx, owner, repo, minorTag); err != nil {
-			a.log.Error("Failed to sync minor tag",
-				slog.String("tag", minorTag),
-				slog.String("error", err.Error()),
-			)
+		if err := a.syncTagToSHA(ctx, owner, repo, minorTag, a.config.CommitSHA); err != nil {
 			syncErrors = append(syncErrors, fmt.Errorf("failed to sync minor tag %s: %w", minorTag, err))
 		}
 	}
@@ -150,11 +130,6 @@ func (a *Action) Run(ctx context.Context) error {
 
 	a.log.Info("Semver tag sync completed successfully")
 	return nil
-}
-
-// syncTag creates or updates a tag to point to the configured commit SHA.
-func (a *Action) syncTag(ctx context.Context, owner, repo, tag string) error {
-	return a.syncTagToSHA(ctx, owner, repo, tag, a.config.CommitSHA)
 }
 
 // syncTagToSHA creates or updates a tag to point to the given commit SHA.
@@ -172,10 +147,6 @@ func (a *Action) syncTagToSHA(ctx context.Context, owner, repo, tag, sha string)
 
 	if err != nil {
 		if resp == nil || resp.StatusCode != http.StatusNotFound {
-			a.log.Error("Failed to check if tag exists",
-				slog.String("tag", tag),
-				slog.String("error", err.Error()),
-			)
 			return fmt.Errorf("failed to check if tag %s exists: %w", tag, err)
 		}
 		a.log.Debug("Tag does not exist, will create",
@@ -367,10 +338,6 @@ func (a *Action) syncTagMap(ctx context.Context, owner, repo string, tagMap map[
 			slog.String("commit_sha", entry.sha),
 		)
 		if err := a.syncTagToSHA(ctx, owner, repo, tagName, entry.sha); err != nil {
-			a.log.Error("Failed to sync "+label+" tag",
-				slog.String("tag", tagName),
-				slog.String("error", err.Error()),
-			)
 			errs = append(errs, fmt.Errorf("failed to sync %s tag %s: %w", label, tagName, err))
 		}
 	}
